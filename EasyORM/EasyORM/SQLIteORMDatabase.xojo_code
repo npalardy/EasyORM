@@ -24,7 +24,7 @@ Inherits ORMDatabase
 		  Dim localDB As New SQLiteDatabase
 		  
 		  If mDBPath.Trim <> "" Then
-		    localDB.DatabaseFile = New folderitem(mDBPath, FolderItem.PathTypeNative)
+		    localDB.DatabaseFile = New folderitem(mDBPath, FolderItem.PathModes.Native)
 		    
 		    localDB.CreateDatabase
 		    
@@ -146,13 +146,18 @@ Inherits ORMDatabase
 		  
 		  Select Case prop.PropertyType.FullName
 		    
+		    // ios has no support for DATE types (only DATETIME !)
 		  Case "Date"
-		    If colValue Is Nil Then
-		      returnValue = Nil 
-		    Else
-		      // we inserted this as ISO 8601 - YYYY-MM-DDThh:mm:ss+HH:mm
-		      returnValue = DateFromISO8601String(colValue.StringValue)
-		    End If
+		    #If TargetIOS
+		      Raise New UnsupportedOperationException("iOS does not support the DATE type")
+		    #Else
+		      If colValue Is Nil Then
+		        returnValue = Nil 
+		      Else
+		        // we inserted this as ISO 8601 - YYYY-MM-DDThh:mm:ss+HH:mm
+		        returnValue = DateFromISO8601String(colValue.StringValue)
+		      End If
+		    #EndIf
 		    
 		  Case "Datetime"
 		    If colValue Is Nil Then
@@ -251,7 +256,7 @@ Inherits ORMDatabase
 		  End If
 		  
 		  Dim stmt As String = "delete from " + tblName 
-		  If Trim(criteria) <> "" Then
+		  If criteria.Trim <> "" Then
 		    stmt = stmt + " where " + criteria
 		  End If
 		  
@@ -345,16 +350,20 @@ Inherits ORMDatabase
 		    Case "Color"
 		      lstColumnValues.add prop.Value(instance)
 		    Case "Date"
-		      If prop.Value(instance).DateValue Is Nil Then
-		        lstColumnValues.add Nil
-		      Else
-		        #Pragma breakonexceptions False
-		        Try
-		          lstColumnValues.add ToISO8601String(prop.Value(instance).DateValue)
-		        Catch
+		      #If TargetIOS 
+		        Raise New UnsupportedOperationException("iOS does not support the DATE type")
+		      #Else
+		        If prop.Value(instance).DateValue Is Nil Then
 		          lstColumnValues.add Nil
-		        End Try
-		      End If
+		        Else
+		          #Pragma breakonexceptions False
+		          Try
+		            lstColumnValues.add ToISO8601String(prop.Value(instance).DateValue)
+		          Catch
+		            lstColumnValues.add Nil
+		          End Try
+		        End If
+		      #EndIf
 		    Case "Datetime"
 		      If prop.Value(instance).DateTimeValue Is Nil Then
 		        lstColumnValues.add Nil

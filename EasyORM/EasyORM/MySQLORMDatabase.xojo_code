@@ -1,6 +1,7 @@
 #tag Class
 Class MySQLORMDatabase
 Inherits ORMDatabase
+	#tag CompatibilityFlags = (TargetConsole and (Target32Bit or Target64Bit)) or  (TargetWeb and (Target32Bit or Target64Bit)) or  (TargetDesktop and (Target32Bit or Target64Bit))
 	#tag Method, Flags = &h1
 		Protected Function AutoincrementClause() As string
 		  return "auto_increment"

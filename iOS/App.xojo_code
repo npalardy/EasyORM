@@ -1,33 +1,34 @@
 #tag Class
 Protected Class App
-Inherits ConsoleApplication
+Inherits MobileApplication
+	#tag CompatibilityFlags = TargetIOS
 	#tag Event
-		Function Run(args() as String) As Integer
+		Sub Opening()
 		  Const kUseSqlite = True
 		  Const kUseMySQL = False
 		  
 		  Dim ormDB As ORMDatabase
 		  
-		  If kUseSqlite Then
+		  #If kUseSqlite Then
 		    ormDB = New SQLIteORMDatabase
 		    // NOT setting SQLIteORMDatabase(ormDB).DBPath makes this connect to an in memory db !
 		    SQLIteORMDatabase(ormDB).DBPath = "easyORM Sample DB.sqlite" // makes this connect to a disk based db
-		  End If
+		  #EndIf
 		  
-		  If kUseMySQL Then
+		  #If kUseMySQL Then
 		    ormDB = New MySQLORMDatabase
 		    MySQLORMDatabase(ormDB).Host = "127.0.0.1" 
 		    MySQLORMDatabase(ormDB).Port = 3306
 		    MySQLORMDatabase(ormDB).DatabaseName = "track_fd_data_norm"
 		    MySQLORMDatabase(ormDB).Username = "root" 
 		    MySQLORMDatabase(ormDB).Password = ""
-		  End If
+		  #EndIf
 		  
 		  ormDB.Connect
 		  
 		  If ormDB.IsConnected = False Then
 		    Break
-		    Return 0
+		    Return
 		  End If
 		  
 		  Dim tinfo As Introspection.TypeInfo = GetTypeInfo( MyCustomTable )
@@ -44,14 +45,18 @@ Inherits ConsoleApplication
 		  Dim toInsert123 As New MyCustomTable
 		  toInsert123.Untitled1 = 123
 		  toInsert123.Untitled2 = 123
-		  toInsert123.DateColumn = New date(1986,02,05)
+		  #If TargetIOS = False 
+		    toInsert123.DateColumn = New date(1986,02,05)
+		  #EndIf
 		  toInsert123.DateTimeColumn = New dateTime(2006,05,02)
 		  ormDB.Insert( toInsert123 )
 		  
 		  Dim toInsert1 As New MyCustomTable
 		  toInsert1.Untitled1 = 1
 		  toInsert123.Untitled2 = 123
-		  toInsert1.DateColumn = New date(1986,02,05,1,2,3,-7.25)
+		  #If TargetIOS = False 
+		    toInsert1.DateColumn = New date(1986,02,05,1,2,3,-7.25)
+		  #EndIf
 		  toInsert1.DateTimeColumn = New dateTime(2006,05,02,1,2,3,0, New TimeZone( 3500 ) )
 		  ormDB.Insert( toInsert1 )
 		  
@@ -87,28 +92,30 @@ Inherits ConsoleApplication
 		          Break
 		        End If
 		        
-		        If found.DateColumn.SQLDateTime <> toinsert1.DateColumn.SQLDateTime Then
-		          Break
-		        End If
+		        #If TargetIOS = False 
+		          If found.DateColumn.SQLDateTime <> toinsert1.DateColumn.SQLDateTime Then
+		            Break
+		          End If
+		        #EndIf
 		        
-		        If kUseMySQL Then
+		        #If kUseMySQL Or TargetIOS Then
 		          // mysql date times do NOT store GMT OFfsets so DO NOT rely on them !
-		        Else
+		        #Else
 		          If found.DateColumn.GMTOffset <> toinsert1.DateColumn.GMTOffset Then
 		            Break
 		          End If
-		        End If
+		        #EndIf
 		        
 		        If found.DateTimeColumn.SQLDateTime <> toinsert1.DateTimeColumn.SQLDateTime Then
 		          Break
 		        End If
-		        If kUseMySQL Then
+		        #If kUseMySQL Or TargetIOS Then
 		          // mysql date times do NOT store GMT OFfsets so DO NOT rely on them !
-		        Else
+		        #Else
 		          If found.DateTimeColumn.Timezone.SecondsFromGMT <> toinsert1.DateTimeColumn.Timezone.SecondsFromGMT Then
 		            Break
 		          End If
-		        End If
+		        #EndIf
 		        
 		      End If
 		    Catch dbx As DatabaseException
@@ -125,26 +132,28 @@ Inherits ConsoleApplication
 		        If found.Untitled1 <> toinsert123.Untitled1 Then
 		          Break
 		        End If
-		        If found.DateColumn.SQLDateTime <> toinsert123.DateColumn.SQLDateTime Then
-		          Break
-		        End If
-		        If kUseMySQL Then
+		        #If TargetIOS = False Then
+		          If found.DateColumn.SQLDateTime <> toinsert123.DateColumn.SQLDateTime Then
+		            Break
+		          End If
+		        #EndIf
+		        #If kUseMySQL Or TargetIOS Then
 		          // mysql date times do NOT store GMT OFfsets so DO NOT rely on them !
-		        Else
+		        #Else
 		          If found.DateColumn.GMTOffset <> toinsert123.DateColumn.GMTOffset Then
 		            Break
 		          End If
-		        End If
+		        #EndIf
 		        If found.DateTimeColumn.SQLDateTime <> toinsert123.DateTimeColumn.SQLDateTime Then
 		          Break
 		        End If
-		        If kUseMySQL Then
+		        #If kUseMySQL Then
 		          // mysql date times do NOT store GMT OFfsets so DO NOT rely on them !
-		        Else
+		        #Else
 		          If found.DateTimeColumn.Timezone.SecondsFromGMT <> toinsert123.DateTimeColumn.Timezone.SecondsFromGMT Then
 		            Break
 		          End If
-		        End If
+		        #EndIf
 		      End If
 		      
 		      
@@ -258,17 +267,9 @@ Inherits ConsoleApplication
 		      Break
 		    End Try
 		  End If
-		  
-		End Function
+		End Sub
 	#tag EndEvent
 
 
-	#tag Property, Flags = &h1
-		Protected ormDB As ORMDatabase
-	#tag EndProperty
-
-
-	#tag ViewBehavior
-	#tag EndViewBehavior
 End Class
 #tag EndClass

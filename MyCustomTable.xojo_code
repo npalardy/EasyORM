@@ -8,7 +8,7 @@ Inherits BaseTable
 	#tag EndMethod
 
 
-	#tag Property, Flags = &h0
+	#tag Property, Flags = &h0, CompatibilityFlags = (TargetConsole and (Target32Bit or Target64Bit)) or  (TargetWeb and (Target32Bit or Target64Bit)) or  (TargetDesktop and (Target32Bit or Target64Bit))
 		DateColumn As Date
 	#tag EndProperty
 
@@ -72,6 +72,14 @@ Inherits BaseTable
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Untitled1"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Untitled2"
 			Visible=false
 			Group="Behavior"
 			InitialValue=""

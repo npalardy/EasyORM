@@ -38,7 +38,7 @@ Class ORMDatabase
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h1
+	#tag Method, Flags = &h1, CompatibilityFlags = (TargetConsole and (Target32Bit or Target64Bit)) or  (TargetWeb and (Target32Bit or Target64Bit)) or  (TargetDesktop and (Target32Bit or Target64Bit))
 		Protected Function DateFromISO8601String(s as string) As Date
 		  // this was inserted as date as yyyy-MM-DD HH:MM:SS [+/-]hh:mm:ss.sss
 		  // hh is HOURS offset from GMT
@@ -89,7 +89,7 @@ Class ORMDatabase
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h1
+	#tag Method, Flags = &h1, CompatibilityFlags = (TargetConsole and (Target32Bit or Target64Bit)) or  (TargetWeb and (Target32Bit or Target64Bit)) or  (TargetDesktop and (Target32Bit or Target64Bit))
 		Protected Function DateFromSqlDateTimeString(sqldateString as string) As Date
 		  
 		  // dates are easy
@@ -116,29 +116,29 @@ Class ORMDatabase
 		  Dim year, month, day, hour, minute, second As Integer
 		  Dim gmtOffset As Double
 		  
-		  parts = Split(s," ")
+		  parts = s.Split(" ")
 		  Try
 		    yearPart = parts(0)
 		    timePart = parts(1)
 		    gmtPart = parts(2)
 		    
-		    parts = Split(yearPart, "-")
+		    parts = yearPart.Split( "-")
 		    year = Val(parts(0))
 		    month = Val(parts(1))
 		    day = Val(parts(2))
 		    
-		    parts = Split(timePart, ":")
+		    parts = timePart.Split(":")
 		    hour = Val(parts(0))
 		    minute = Val(parts(1))
 		    second = Val(parts(2))
 		    
 		    Dim isNegGMT As Boolean
-		    If Left(gmtPart,1) = "-" Then
+		    If gmtPart.Left(1) = "-" Then
 		      isNegGMT = True
 		    End If
-		    gmtPart = ReplaceAll(gmtPart,"-","")
-		    gmtPart = ReplaceAll(gmtPart,"+","")
-		    parts = Split(gmtPart, ":")
+		    gmtPart = gmtPart.ReplaceAll("-","")
+		    gmtPart = gmtPart.ReplaceAll("+","")
+		    parts = gmtPart.Split( ":")
 		    gmtOffset = Val(parts(0)) * 60 * 60 + Val(parts(1)) * 60 + val(parts(2)) // <<<<<<<<<< for dateTime gmtOffset is in seconds !
 		    If isNegGMT Then
 		      gmtOffset = gmtOffset * -1
@@ -156,12 +156,14 @@ Class ORMDatabase
 	#tag Method, Flags = &h1
 		Protected Function DateTimeFromSqlDateTimeString(sqldateString as string) As Datetime
 		  
-		  // dates are easy
+		  // sql dates are easy
+		  Dim parts() As String = sqldateString.ReplaceAll("-", " ").ReplaceAll(":", " ").Split(" ")
 		  
-		  Dim tmpDate As New date
-		  tmpDate.SQLDateTime = sqldateString
+		  If parts.count < 3 Then
+		    Return Nil
+		  End If
 		  
-		  Dim tmpDateTime As New DateTime(tmpDate)
+		  Dim tmpDateTime As New DateTime(parts(0).ToInteger, parts(1).ToInteger, parts(2).ToInteger)
 		  
 		  Return tmpDateTime
 		End Function
@@ -369,7 +371,7 @@ Class ORMDatabase
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h1
+	#tag Method, Flags = &h1, CompatibilityFlags = (TargetConsole and (Target32Bit or Target64Bit)) or  (TargetWeb and (Target32Bit or Target64Bit)) or  (TargetDesktop and (Target32Bit or Target64Bit))
 		Protected Function ToISO8601String(d as date) As string
 		  // formats a date as yyyy-MM-DD HH:MM:SS [+/-]hh:mm:ss.sss
 		  // hh is HOURS offset from GMT
@@ -419,7 +421,7 @@ Class ORMDatabase
 		  mins = Abs(mins)
 		  
 		  s = s + d.SQLDateTime
-		  s = s +  " " + If(d.Timezone.SecondsFromGMT < 0, "-" , "+") + Format(hours,"00") + ":" + Format(mins,"00") + ":" + Format(secs,"00.00")
+		  s = s +  " " + If(d.Timezone.SecondsFromGMT < 0, "-" , "+") + hours.ToString(Nil,"00") + ":" + mins.ToString(Nil,"00") + ":" + secs.ToString(Nil,"00.00")
 		  
 		  Return s
 		  

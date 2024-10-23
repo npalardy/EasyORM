@@ -7,19 +7,16 @@
 				Begin BuildProjectStep Build
 				End
 				Begin SignProjectStep Sign
-				  DeveloperID=
-				End
-				Begin CopyFilesBuildStep CopyFiles1
-					AppliesTo = 0
-					Architecture = 0
-					Target = 0
-					Destination = 0
-					Subdirectory = 
-					FolderItem = Li4vZWFzeU9STSUyMFNhbXBsZSUyMERCLnNxbGl0ZQ==
 				End
 			End
 			Begin BuildStepList Windows
 				Begin BuildProjectStep Build
+				End
+			End
+			Begin BuildStepList iOS
+				Begin BuildProjectStep Build
+				End
+				Begin SignProjectStep Sign
 				End
 			End
 #tag EndBuildAutomation
